@@ -1,0 +1,19 @@
+version: "3.9"
+services:
+  backend:
+    build: .
+    container_name: backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - pgdb
+    environment:
+      - DATABASE_URL=postgresql://postgres:root@pgdb:5432/tnpconnect
+    
+  pgdb:
+    image: postgres:alpine
+    container_name: pgdb
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=root

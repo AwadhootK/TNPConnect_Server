@@ -34,7 +34,7 @@ model Student {
 
 model StudentDocuments {
   student             Student @relation(fields: [studentId], references: [enrollmentNo])
-  studentId           String @id
+  studentId           String  @id
   resume              String
   photo               String
   tenthMarksheet      String
@@ -65,7 +65,6 @@ model Company {
   mode             Mode?
   driveCompleted   Boolean   @default(false)
 }
-
 
 enum Mode {
   online
