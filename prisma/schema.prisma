@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  enrollmentNo     String             @id @unique
+  password         String
+  name             String
+  rollNo           String             @unique
+  email            String             @unique
+  prnNo            String             @unique
+  branch           Branch
+  cgpa             Float
+  year             Year
+  countOfBacklogs  Int                @default(0)
+  isInterned       Boolean            @default(false)
+  gender           Gender
+  companyName      String             @default("NA")
+  StudentDocuments StudentDocuments[]
+
+  @@index([name, enrollmentNo])
+}
+
+model StudentDocuments {
+  student             Student @relation(fields: [studentId], references: [enrollmentNo])
+  studentId           String @id
+  resume              String
+  photo               String
+  tenthMarksheet      String
+  twelfthMarksheet    String
+  transcript          String
+  collegeID           String
+  aadharCard          String
+  panCard             String
+  passport            String?
+  amcatPaymentReceipt String
+  amcatResult         String
+  TEfeeReceipt        String?
+}
+
+model Company {
+  id               String    @id @default(uuid())
+  name             String
+  stipend          Int       @default(0)
+  ppo              Boolean?
+  jdLink           String?
+  location         String?
+  duration         Int?
+  rounds           Int?
+  dateTimeOfTest   DateTime?
+  notes            String?
+  criteria         String?
+  eligibleBranches Branch[]  @default([CSE, IT, ENTC])
+  mode             Mode?
+  driveCompleted   Boolean   @default(false)
+}
+
+
+enum Mode {
+  online
+  offline
+}
+
+enum Branch {
+  CSE
+  IT
+  ENTC
+}
+
+enum Year {
+  FE
+  SE
+  TE
+  BE
+}
+
+enum Gender {
+  Male
+  Female
+}
