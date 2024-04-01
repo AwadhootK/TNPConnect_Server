@@ -32,6 +32,12 @@ const login = async (req, res, next) => {
         const refreshToken = jwt.sign({ username: user.username }, process.env.REFRESH_TOKEN_SECRET, { algorithm: 'HS256' });
 
         // refreshTokens.push(refreshToken);
+        await prisma.RefreshTokens.create({
+            data: {
+                username: erno,
+                token: refreshToken
+            }
+        });
 
         const tokens = { accessToken: accessToken, refreshToken: refreshToken };
 
@@ -40,12 +46,19 @@ const login = async (req, res, next) => {
 
 }
 
-const refresh = (req, res, next) => {
-    const refreshToken = req.body.refreshToken
-    if (!refreshToken) return res.sendStatus(401)
+const refresh = async (req, res, next) => {
+    const refreshToken = req.body.refreshToken;
+    if (!refreshToken) return res.sendStatus(401);
 
-    //! check DB for refreshtoken availability
-    // if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403)
+    const userRefreshToken = await prisma.RefreshTokens.findFirst({
+        where: {
+            token: refreshToken
+        }
+    });
+
+    if (!userRefreshToken) {
+        return res.status(403).send('Invalid Refresh token!');
+    }
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, { algorithm: 'HS256' }, (err, user) => {
         if (err) return res.sendStatus(403)
