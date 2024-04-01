@@ -36,6 +36,11 @@ model Authentication {
   password String
 }
 
+model RefreshTokens {
+  username String @id
+  token    String
+}
+
 model StudentDocuments {
   student             Student @relation(fields: [studentId], references: [enrollmentNo])
   studentId           String  @id
