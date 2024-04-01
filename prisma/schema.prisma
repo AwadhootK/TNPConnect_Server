@@ -26,7 +26,6 @@ model Student {
   isInterned       Boolean            @default(false)
   gender           Gender
   companyName      String             @default("NA")
-  StudentDocuments StudentDocuments[]
 
   @@index([name, enrollmentNo])
 }
@@ -42,7 +41,6 @@ model RefreshTokens {
 }
 
 model StudentDocuments {
-  student             Student @relation(fields: [studentId], references: [enrollmentNo])
   studentId           String  @id
   resume              String
   photo               String

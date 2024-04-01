@@ -23,9 +23,9 @@ const login = async (req, res, next) => {
     });
 
     if (!user) {
-        return res.send('<h1>User Does Not Exist!</h1>');
+        return res.send('User Does Not Exist!');
     } else if (user.password !== pwd) {
-        return res.send('<h1>Unauthorized!</h1>');
+        return res.send('Unauthorized!');
     } else {
         // authorized
         const accessToken = jwt.sign({ username: user.username }, process.env.ACCESS_TOKEN_SECRET, { algorithm: 'HS256', expiresIn: '500s' });
