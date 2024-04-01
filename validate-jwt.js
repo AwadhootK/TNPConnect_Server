@@ -6,12 +6,12 @@ function authenticateToken(req, res, next) {
 
     console.log(accessToken)
 
-    if (!accessToken) return res.status(400).send('Access token missing!')
+    if (!accessToken) return res.status(400).json({ message: 'Access token missing!' });
 
     jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, { algorithm: 'HS256' }, (err, user) => {
         if (err) {
             console.log(err)
-            return res.status(401).send('Acess token expired!');
+            return res.status(401).json({ message: 'Acess token expired!' });
         }
         req.user = user;
         next();

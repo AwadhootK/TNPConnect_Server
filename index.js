@@ -8,6 +8,24 @@ const authRouter = require('./routes/authRouter');
 const profileRouter = require('./routes/profileRouter');
 const uploadDocsRouter = require('./routes/uploadDocsRouter');
 
+const { exec } = require('child_process');
+
+function runCommand(command) {
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error executing command: ${error}`);
+      return;
+    }
+    console.log(`Command output: ${stdout}`);
+    if (stderr) {
+      console.error(`Command error: ${stderr}`);
+    }
+  });
+}
+
+// runCommand('npx prisma migrate dev --name init');
+// runCommand('npx prisma generate');
+
 const app = express();
 
 app.use(cookieParser());
@@ -28,5 +46,5 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server is running at ${PORT}`)
-})
+  console.log(`Server running at port ${PORT}`);
+});

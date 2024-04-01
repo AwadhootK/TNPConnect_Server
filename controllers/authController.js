@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const prisma = new PrismaClient({
     log: ['query'],
     errorFormat: 'pretty'
-})
+});
 
 
 const login = async (req, res, next) => {
@@ -13,7 +13,7 @@ const login = async (req, res, next) => {
     console.log(erno, pwd);
 
     if (!erno || !pwd) {
-        res.status(400).send('Details incomplete');
+        return res.status(400).json({ message: 'Details incomplete' });
     }
 
     const user = await prisma.Authentication.findFirst({
@@ -23,27 +23,34 @@ const login = async (req, res, next) => {
     });
 
     if (!user) {
-        return res.send('User Does Not Exist!');
+        return res.send({ message: 'User Does Not Exist!' });
     } else if (user.password !== pwd) {
-        return res.send('Unauthorized!');
+        return res.send({ message: 'Unauthorized!' });
     } else {
-        // authorized
-        const accessToken = jwt.sign({ username: user.username }, process.env.ACCESS_TOKEN_SECRET, { algorithm: 'HS256', expiresIn: '500s' });
-        const refreshToken = jwt.sign({ username: user.username }, process.env.REFRESH_TOKEN_SECRET, { algorithm: 'HS256' });
-
-        // refreshTokens.push(refreshToken);
-        await prisma.RefreshTokens.create({
-            data: {
-                username: erno,
-                token: refreshToken
+        const refreshUser = await prisma.RefreshTokens.findFirst({
+            where: {
+                username: erno
             }
         });
 
-        const tokens = { accessToken: accessToken, refreshToken: refreshToken };
+        if (!refreshUser) {
+            const accessToken = jwt.sign({ username: user.username }, process.env.ACCESS_TOKEN_SECRET, { algorithm: 'HS256', expiresIn: '500s' });
+            const refreshToken = jwt.sign({ username: user.username }, process.env.REFRESH_TOKEN_SECRET, { algorithm: 'HS256' });
 
-        return res.json(tokens);
+            await prisma.RefreshTokens.create({
+                data: {
+                    username: erno,
+                    token: refreshToken
+                }
+            });
+
+            const tokens = { accessToken: accessToken, refreshToken: refreshToken };
+
+            return res.status(200).json(tokens);
+        } else {
+            return res.status(200).json({});
+        }
     }
-
 }
 
 const refresh = async (req, res, next) => {
@@ -57,7 +64,7 @@ const refresh = async (req, res, next) => {
     });
 
     if (!userRefreshToken) {
-        return res.status(403).send('Invalid Refresh token!');
+        return res.status(403).json({ message: 'Invalid Refresh token!' });
     }
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, { algorithm: 'HS256' }, (err, user) => {
@@ -73,7 +80,7 @@ const signUp = async (req, res, next) => {
     console.log(username, password);
 
     if (!username || !password) {
-        res.status(400).send('Details incomplete');
+        res.status(400).json({ message: 'Details incomplete' });
     }
 
     const newUser = await prisma.Authentication.create({
@@ -84,9 +91,21 @@ const signUp = async (req, res, next) => {
     });
 
     if (!newUser) {
-        res.status(400).send('Some error occurred!');
+        res.status(400).json({ message: 'Some error occurred!' });
     } else {
-        res.send(newUser);
+        const accessToken = jwt.sign({ username: username }, process.env.ACCESS_TOKEN_SECRET, { algorithm: 'HS256', expiresIn: '500s' });
+        const refreshToken = jwt.sign({ username: username }, process.env.REFRESH_TOKEN_SECRET, { algorithm: 'HS256' });
+
+        await prisma.RefreshTokens.create({
+            data: {
+                username: username,
+                token: refreshToken
+            }
+        });
+
+        const tokens = { accessToken: accessToken, refreshToken: refreshToken };
+
+        return res.json(tokens);
     }
 }
 
