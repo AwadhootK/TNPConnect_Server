@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const adminRouter = require('./routes/adminRouter');
 const authRouter = require('./routes/authRouter');
 const profileRouter = require('./routes/profileRouter');
+const uploadDocsRouter = require('./routes/uploadDocsRouter');
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/admin', adminRouter);
 app.use('/auth', authRouter);
 app.use('/profile', profileRouter);
+app.use('/upload', uploadDocsRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World!')

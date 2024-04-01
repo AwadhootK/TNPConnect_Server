@@ -25,5 +25,23 @@ const postProfile = (req, res, next) => {
     res.send('company details')
 }
 
+const editProfileDocs = async (req, res, next) => {
+    const erno = req.params.erno;
+    const docType = req.body.docType;
+    const docURL = req.body.docURL;
 
-module.exports = { getProfile, postProfile }
+    const userDetails = await prisma.studentDocuments.findFirst({ where: { studentId: erno } });
+
+    userDetails.resume = docURL;
+
+    const user = await prisma.student.update({
+        where: {
+            enrollmentNo: erno
+        },
+        data: userDetails
+    });
+
+    res.send(userDetails);
+}
+
+module.exports = { getProfile, postProfile, editProfileDocs }

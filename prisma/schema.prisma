@@ -15,7 +15,6 @@ datasource db {
 
 model Student {
   enrollmentNo     String             @id @unique
-  password         String
   name             String
   rollNo           String             @unique
   email            String             @unique
@@ -30,6 +29,11 @@ model Student {
   StudentDocuments StudentDocuments[]
 
   @@index([name, enrollmentNo])
+}
+
+model Authentication {
+  username String @id @unique
+  password String
 }
 
 model StudentDocuments {

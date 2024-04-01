@@ -1,10 +1,11 @@
 const express = require('express')
-const { getProfile, postProfile } = require('../controllers/profileController.js')
+const { getProfile, postProfile, editProfileDocs } = require('../controllers/profileController.js')
 const { authenticateToken } = require('../validate-jwt.js')
 
 const profileRouter = express.Router()
 
 profileRouter.get('/:erno', getProfile);
-profileRouter.post('/', authenticateToken, postProfile)
+profileRouter.post('/', postProfile);
+profileRouter.patch('/:erno', editProfileDocs);
 
 module.exports = profileRouter;

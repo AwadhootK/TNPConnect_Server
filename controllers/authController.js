@@ -8,10 +8,17 @@ const prisma = new PrismaClient({
 
 
 const login = async (req, res, next) => {
-    const { erno, pwd } = req.query;
-    const user = await prisma.student.findFirst({
+    const { erno, pwd } = req.body;
+
+    console.log(erno, pwd);
+
+    if (!erno || !pwd) {
+        res.status(400).send('Details incomplete');
+    }
+
+    const user = await prisma.Authentication.findFirst({
         where: {
-            enrollmentNo: { equals: erno },
+            username: erno
         }
     });
 
@@ -47,8 +54,27 @@ const refresh = (req, res, next) => {
     });
 }
 
-const signUp = (req, res, next) => {
+const signUp = async (req, res, next) => {
+    const { username, password } = req.body;
 
+    console.log(username, password);
+
+    if (!username || !password) {
+        res.status(400).send('Details incomplete');
+    }
+
+    const newUser = await prisma.Authentication.create({
+        data: {
+            username: username,
+            password: password
+        }
+    });
+
+    if (!newUser) {
+        res.status(400).send('Some error occurred!');
+    } else {
+        res.send(newUser);
+    }
 }
 
 module.exports = { login, refresh, signUp }
