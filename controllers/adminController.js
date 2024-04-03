@@ -1,9 +1,34 @@
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient({
+    log: ['query'],
+    errorFormat: 'pretty'
+});
+
 const getCompanyDetails = (req, res, next) => {
     res.send('company details')
 }
 
 const postCompanyDetails = (req, res, next) => {
 
+}
+
+const updateDriveStatus = async (req, res, next) => {
+    try{
+        const {companyName} = req.params;
+        console.log(companyName)
+        const companyUpdate = await prisma.company.update({
+            where: {name: companyName} ,
+            data: {driveCompleted: true}
+        })
+        if(companyUpdate){
+            res.status(200).send(`Company ${companyName} drive marked as completed!`);
+        }
+        else res.status(404).send(`Company ${companyName} not found!`);
+    }catch(err){
+        console.error(err)
+        res.status(500).send('Error updating Company drive status!');
+    }
 }
 
 const companyResults = async (req, res, next) => {
@@ -50,4 +75,4 @@ const updateInternshipStatus = async (erno, company) => {
     }
 }
 
-module.exports = { getCompanyDetails, postCompanyDetails, companyResults }
+module.exports = { getCompanyDetails, postCompanyDetails, companyResults, updateDriveStatus }

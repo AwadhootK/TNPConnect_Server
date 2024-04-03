@@ -18,7 +18,7 @@ const uploadDocsPost = async (req, res) => {
         };
 
         const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
-
+        
         const downloadURL = await getDownloadURL(snapshot.ref);
 
         console.log('File successfully uploaded.');
