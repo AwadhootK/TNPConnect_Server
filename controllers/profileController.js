@@ -15,9 +15,9 @@ const getProfile = async (req, res, next) => {
     })
 
     if (!userProfile) {
-        return res.status(404).send('User not found!');
+        return res.status(404).json({ message: 'User not found!' });
     }
-    res.send(userProfile);
+    res.json(userProfile);
 }
 
 const postProfile = async (req, res, next) => {
@@ -26,10 +26,10 @@ const postProfile = async (req, res, next) => {
     });
 
     if (!userProfile) {
-        return res.status(400).send('Some error occurred!');
+        return res.status(400).json({ message: 'Some error occurred!' });
     }
 
-    res.status(200).send('Profile created successfully!');
+    res.status(200).json({ message: 'Profile created successfully!' });
 }
 
 const editProfileDocs = async (req, res, next) => {
@@ -48,7 +48,7 @@ const editProfileDocs = async (req, res, next) => {
         data: userDetails
     });
 
-    res.send(userDetails);
+    res.json(userDetails);
 }
 
 const editProfileIsInterned = async (req, res) => {
@@ -58,11 +58,11 @@ const editProfileIsInterned = async (req, res) => {
     const studentDetails = await prisma.student.findFirst({ where: { enrollmentNo: { equals: erno } } });
 
     if (studentDetails) {
-        return res.status(400).send('Student not found!');
+        return res.status(400).json({ message: 'Student not found!' });
     }
 
     if (studentDetails.isInterned === true) {
-        return res.status(400).send('Internship already present!');
+        return res.status(400).json({ message: 'Internship already present!' });
     }
 
     studentDetails.isInterned = true;
@@ -76,10 +76,10 @@ const editProfileIsInterned = async (req, res) => {
     });
 
     if (!updatedStudent) {
-        return res.status(400).send('Some error occurred!');
+        return res.status(400).json({ message: 'Some error occurred!' });
     }
 
-    res.status(200).send('Internship status successfully updated!');
+    res.status(200).json({ message: 'Internship status successfully updated!' });
 }
 
 const getResumeLink = async (req, res) => {

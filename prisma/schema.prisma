@@ -14,18 +14,19 @@ datasource db {
 }
 
 model Student {
-  enrollmentNo     String             @id @unique
-  name             String
-  rollNo           String             @unique
-  email            String             @unique
-  prnNo            String             @unique
-  branch           Branch
-  cgpa             Float
-  year             Year
-  countOfBacklogs  Int                @default(0)
-  isInterned       Boolean            @default(false)
-  gender           Gender
-  companyName      String             @default("NA")
+  enrollmentNo    String  @id @unique
+  name            String
+  rollNo          String  @unique
+  email           String  @unique
+  prnNo           String  @unique
+  branch          Branch
+  cgpa            Float
+  year            Year
+  countOfBacklogs Int     @default(0)
+  isInterned      Boolean @default(false)
+  gender          Gender
+  companyName     String  @default("NA")
+  registeredCompanies String[]  @default([])
 
   @@index([name, enrollmentNo])
 }
@@ -57,20 +58,20 @@ model StudentDocuments {
 }
 
 model Company {
-  id               String    @id @default(uuid())
-  name             String
-  stipend          Int       @default(0)
-  ppo              Boolean?
-  jdLink           String?
-  location         String?
-  duration         Int?
-  rounds           Int?
-  dateTimeOfTest   DateTime?
-  notes            String?
-  criteria         String?
-  eligibleBranches Branch[]  @default([CSE, IT, ENTC])
-  mode             Mode?
-  driveCompleted   Boolean   @default(false)
+  id                  String    @id @default(uuid())
+  name                String
+  stipend             Int       @default(0)
+  ppo                 Boolean?
+  jdLink              String?
+  location            String?
+  duration            Int?
+  rounds              Int?
+  dateTimeOfTest      DateTime?
+  notes               String?
+  criteria            String?
+  eligibleBranches    Branch[]  @default([CSE, IT, ENTC])
+  mode                Mode?
+  driveCompleted      Boolean   @default(false)
 }
 
 enum Mode {

@@ -4,6 +4,7 @@ const { studentRegPost } = require('../controllers/studentRegisterationControlle
 
 const studentRegRouter = express.Router();
 
-studentRegRouter.post('/response', authenticateToken, studentRegPost);
+//! add authToken middleware
+studentRegRouter.post('/', studentRegPost);
 
 module.exports = studentRegRouter;

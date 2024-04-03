@@ -16,46 +16,35 @@ const storage = getStorage();
 
 const uploadDocsPost = async (req, res) => {
     try {
-        const storageRef = ref(storage, `${req.params.erno}/${req.file.originalname}`);
-
-        const metadata = {
-            contentType: req.file.mimetype,
-        };
-
-        const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
-
-        const downloadURL = await getDownloadURL(snapshot.ref);
-
+        const downloadURL = req.body.downloadURL;
         const index = parseInt(req.params.index);
         const studentID = req.params.erno;
 
         var docName = ''
         switch (index) {
-            case 0: docName = 'studentId';
+            case 0: docName = 'resume'
                 break;
-            case 1: docName = 'resume'
+            case 1: docName = 'photo'
                 break;
-            case 2: docName = 'photo'
+            case 2: docName = 'tenthMarksheet'
                 break;
-            case 3: docName = 'tenthMarksheet'
+            case 3: docName = 'twelfthMarksheet'
                 break;
-            case 4: docName = 'twelfthMarksheet'
+            case 4: docName = 'transcript'
                 break;
-            case 5: docName = 'transcript'
+            case 5: docName = 'collegeId'
                 break;
-            case 6: docName = 'collegeId'
+            case 6: docName = 'aadharCard'
                 break;
-            case 7: docName = 'aadharCard'
+            case 7: docName = 'panCard'
                 break;
-            case 8: docName = 'panCard'
+            case 8: docName = 'passport'
                 break;
-            case 9: docName = 'passport'
+            case 9: docName = 'amcatPaymentReceipt'
                 break;
-            case 10: docName = 'amcatPaymentReceipt'
+            case 10: docName = 'amcatResult'
                 break;
-            case 11: docName = 'amcatResult'
-                break;
-            case 12: docName = 'TEfeeReceipt'
+            case 11: docName = 'TEfeeReceipt'
                 break;
             default: docName = 'invalid'
                 break;
@@ -65,10 +54,11 @@ const uploadDocsPost = async (req, res) => {
             return res.status(400).json({ message: "Invalid document index sent" });
         }
 
+        console.log("Doctype = " + docName);
+
 
         var doc;
         if (index == 0) {
-
             doc = await prisma.studentDocuments.create({
                 data: {
                     'studentId': studentID,
@@ -87,19 +77,21 @@ const uploadDocsPost = async (req, res) => {
                 }
             });
         } else {
-            doc = prisma.studentDocuments.update({
+            doc = await prisma.studentDocuments.update({
                 where: {
-                    studentId: req.params.erno
+                    studentId: studentID
                 },
                 data: {
-                    [docName]: downloadURL
+                    "tenthMarksheet": downloadURL
                 }
             });
         }
 
         if (!doc) {
+            console.log("Not inserted");
             return res.status(400).json({ message: "Could not upload document!" });
         }
+        console.log("inserted");
         return res.status(200).json({ message: `${studentID}'s ${docName} uploaded successfully!`, downloadURL: downloadURL });
 
     } catch (error) {

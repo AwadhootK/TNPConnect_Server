@@ -1,33 +1,46 @@
 const { Pool } = require('pg')
 require('dotenv').config()
 
-// Create a PostgreSQL connection pool
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-})
 
 async function createTable(
   tableName,
   columnNames,
   columnTypes
 ) {
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL_POOL
+  });
+
+  console.log('creating table for ' + tableName);
+
   const client = await pool.connect()
   try {
+    console.log(process.env.DATABASE_URL_POOL);
 
-    const query = `CREATE TABLE IF NOT EXISTS "${tableName}" (
-      enrollmentNo VARCHAR(255) PRIMARY KEY,
-      ${columnNames
-        .map((columnName, index) => `"${columnName}" ${columnTypes[index]}`)
-        .join(',\n')},
+    var query;
+    if (columnNames == undefined || columnNames == null || columnTypes == undefined || columnTypes == null) {
+      query = `CREATE TABLE IF NOT EXISTS "${tableName}" (
+        enrollmentNo VARCHAR(255) PRIMARY KEY,
         FOREIGN KEY (enrollmentNo) REFERENCES "Student"("enrollmentNo") 
         ON DELETE CASCADE 
         ON UPDATE CASCADE
     )`;
+    } else {
+      query = `CREATE TABLE IF NOT EXISTS "${tableName}" (
+        enrollmentNo VARCHAR(255) PRIMARY KEY,
+        ${columnNames
+          .map((columnName, index) => `"${columnName}" ${columnTypes[index]}`)
+          .join(',\n')},
+          FOREIGN KEY (enrollmentNo) REFERENCES "Student"("enrollmentNo") 
+          ON DELETE CASCADE 
+          ON UPDATE CASCADE
+      )`;
+    }
 
-    console.log(query)
 
-    // Execute the query
-    await client.query(query)
+    console.log("query = " + query);
+
+    await client.query(query);
 
     console.log(`Table "${tableName}" created successfully.`)
 
@@ -35,16 +48,9 @@ async function createTable(
     console.error('Error creating table:', error)
   } finally {
     // Release the client back to the pool
-    client.release();
+    // client.release();
   }
 }
 
 
-// get the columns and the types from admin web frontend 
-createTable('Barclays', ['name', 'age'], ['VARCHAR(255)', 'INTEGER'])
-  .then(() => {
-    // Do something after the table is created
-  })
-  .catch(error => {
-    console.error('Error:', error)
-  })
+module.exports = { createTable }

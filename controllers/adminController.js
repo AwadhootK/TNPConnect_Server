@@ -1,3 +1,4 @@
+const { createTable } = require('../createTable');
 const { Prisma, PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient({
     log: ['query'],
@@ -14,8 +15,8 @@ async function getCompanyDetails(req, res, next) {
         }
     });
     if (!count)
-        return res.send('Results not obtained yet , contact the admin');
-    return res.send(count);
+        return res.json({ message: 'Results not obtained yet , contact the admin' });
+    return res.json({ message: count });
 
 
 }
@@ -23,41 +24,42 @@ async function getCompanyDetails(req, res, next) {
 async function getCountOfRegisteredStudents(req, res, next) {
     var totalRegistered = prisma.company.count
     if (!totalRegistered)
-        return res.send('No students registered yet , contact the admin');
+        return res.json({ message: 'No students registered yet , contact the admin' });
 
-    return res.send(totalRegistered);
+    return res.json({ message: totalRegistered });
 
 }
 
 const postCompanyDetails = async (req, res, next) => {
     try {
-        const companyName = req.body.companyName;
+        const companyName = req.body.name;
         const columnsReq = req.body.colName;
         const columnsDataType = req.body.coldatatype;
 
-        // Insert new company entry into the database
+        const companyData = {
+            name: req.body.name,
+            id: req.body.cid,
+            stipend: req.body.stipend,
+            ppo: req.body.ppo,
+            jdLink: req.body.jdLink,
+            location: req.body.location,
+            duration: req.body.duration,
+            rounds: req.body.rounds,
+            dateTimeOfTest: req.body.dateTimeOfTest,
+            notes: req.body.notes,
+            criteria: req.body.criteria,
+            mode: req.body.mode,
+            driveCompleted: req.body.driveCompleted,
+            eligibleBranches: req.body.eligibleBranches,
+            mode: req.body.mode
+        };
+
+        console.log(companyData);
+
         const newCompany = await prisma.company.create({
-            data: {
-                name: companyName,
-                // Assuming other fields are provided in req.body
-                id: req.body.cid,
-                stipend: req.body.stipend,
-                ppo: req.body.ppo,
-                jdLink: req.body.jdLink,
-                location: req.body.location,
-                duration: req.body.duration,
-                rounds: req.body.rounds,
-                dateTimeOfTest: req.body.dateTimeOfTest,
-                notes: req.body.notes,
-                criteria: req.body.criteria,
-                mode: req.body.mode,
-                driveCompleted: req.body.driveCompleted,
-                eligibleBranches: { connect: req.body.eligibleBranches },
-                mode: { connect: req.body.mode }
-            }
+            data: companyData
         });
 
-        // Create table dynamically
         await createTable(companyName, columnsReq, columnsDataType);
 
         res.status(200).json({ message: 'Company details added successfully' });

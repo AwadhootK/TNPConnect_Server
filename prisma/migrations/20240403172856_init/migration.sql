@@ -13,7 +13,6 @@ CREATE TYPE "Gender" AS ENUM ('Male', 'Female');
 -- CreateTable
 CREATE TABLE "Student" (
     "enrollmentNo" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "rollNo" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -25,8 +24,25 @@ CREATE TABLE "Student" (
     "isInterned" BOOLEAN NOT NULL DEFAULT false,
     "gender" "Gender" NOT NULL,
     "companyName" TEXT NOT NULL DEFAULT 'NA',
+    "registeredCompanies" TEXT[] DEFAULT ARRAY[]::TEXT[],
 
     CONSTRAINT "Student_pkey" PRIMARY KEY ("enrollmentNo")
+);
+
+-- CreateTable
+CREATE TABLE "Authentication" (
+    "username" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+
+    CONSTRAINT "Authentication_pkey" PRIMARY KEY ("username")
+);
+
+-- CreateTable
+CREATE TABLE "RefreshTokens" (
+    "username" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+
+    CONSTRAINT "RefreshTokens_pkey" PRIMARY KEY ("username")
 );
 
 -- CreateTable
@@ -83,5 +99,5 @@ CREATE UNIQUE INDEX "Student_prnNo_key" ON "Student"("prnNo");
 -- CreateIndex
 CREATE INDEX "Student_name_enrollmentNo_idx" ON "Student"("name", "enrollmentNo");
 
--- AddForeignKey
-ALTER TABLE "StudentDocuments" ADD CONSTRAINT "StudentDocuments_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("enrollmentNo") ON DELETE RESTRICT ON UPDATE CASCADE;
+-- CreateIndex
+CREATE UNIQUE INDEX "Authentication_username_key" ON "Authentication"("username");
