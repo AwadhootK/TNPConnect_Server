@@ -82,4 +82,16 @@ const editProfileIsInterned = async (req, res) => {
     res.status(200).send('Internship status successfully updated!');
 }
 
-module.exports = { getProfile, postProfile, editProfileDocs, editProfileIsInterned }
+const getResumeLink = async (req, res) => {
+    const erno = req.params.erno;
+
+    const docs = await prisma.studentDocuments.findFirst({ where: { studentId: erno } });
+
+    if (!resumeLink) {
+        return res.status(400).json({ message: "Resume not found!" });
+    }
+
+    return res.status(200).json({ resumeLink: docs.resume });
+}
+
+module.exports = { getProfile, postProfile, editProfileDocs, editProfileIsInterned, getResumeLink }

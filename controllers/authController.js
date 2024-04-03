@@ -23,9 +23,9 @@ const login = async (req, res, next) => {
     });
 
     if (!user) {
-        return res.send({ message: 'User Does Not Exist!' });
+        return res.json({ message: 'User Does Not Exist!' });
     } else if (user.password !== pwd) {
-        return res.send({ message: 'Unauthorized!' });
+        return res.json({ message: 'Unauthorized!' });
     } else {
         const refreshUser = await prisma.RefreshTokens.findFirst({
             where: {

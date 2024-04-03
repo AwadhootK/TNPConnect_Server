@@ -7,7 +7,7 @@ const docRouter = express.Router();
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-docRouter.post("/:erno", upload.single("file"), uploadDocsPost);
+docRouter.post("/:erno/:index", upload.single("file"), uploadDocsPost);
 // docRouter.post('/edit/:erno', )
 
 module.exports = docRouter;
