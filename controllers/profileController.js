@@ -12,12 +12,21 @@ const getProfile = async (req, res, next) => {
         where: {
             enrollmentNo: { equals: erno }
         }
-    })
+    });
+
+    const studentDocs = await prisma.studentDocuments.findFirst({
+        where: {
+            studentId: { equals: erno }
+        }
+    });
 
     if (!userProfile) {
         return res.status(404).json({ message: 'User not found!' });
     }
-    res.json(userProfile);
+    res.json({
+        "studentProfile": userProfile,
+        "studentDocuments": studentDocs,
+    });
 }
 
 const postProfile = async (req, res, next) => {
@@ -94,4 +103,26 @@ const getResumeLink = async (req, res) => {
     return res.status(200).json({ resumeLink: docs.resume });
 }
 
-module.exports = { getProfile, postProfile, editProfileDocs, editProfileIsInterned, getResumeLink }
+const getRegisteredCompanies = async (req, res) => {
+    try {
+
+        const studentID = req.params.studentID;
+
+        const companyList = await prisma.student.findFirst({
+            where: {
+                enrollmentNo: studentID
+            },
+        });
+
+        if (!companyList) {
+            return res.status(400).json({ message: "Some error occurred!" });
+        }
+
+        return res.status(200).json({ companies: companyList.registeredCompanies });
+
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+module.exports = { getProfile, postProfile, editProfileDocs, editProfileIsInterned, getResumeLink, getRegisteredCompanies }

@@ -31,11 +31,11 @@ const studentRegPost = async (req, res) => {
         }
 
 
-        console.log("query = " + query);
+        // console.log("query = " + query);
 
         await client.query(query);
 
-        console.log('done updating company');
+        // console.log('done updating company');
 
         const updatedStudent = await prisma.student.update({
             where: { enrollmentNo: studentID }, data: {
@@ -45,9 +45,13 @@ const studentRegPost = async (req, res) => {
             }
         });
 
-        console.log('Student company list = ' + updatedStudent.registeredCompanies);
+        if (!updatedStudent) {
+            return res.status(400).json({ message: 'Student not registered!' })
+        }
 
-        res.status(200).json({message: "Student recorded successfully!"});
+        // console.log('Student company list = ' + updatedStudent.registeredCompanies);
+
+        res.status(200).json({ message: "Student recorded successfully!" });
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'Internal server error' });

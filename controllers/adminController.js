@@ -1,4 +1,6 @@
 const { createTable } = require('../createTable');
+const { SendNotificationToDevice } = require('../controllers/push-notifications.controller.js');
+
 const { Prisma, PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient({
     log: ['query'],
@@ -68,37 +70,49 @@ const postCompanyDetails = async (req, res, next) => {
         res.status(500).json({ error: 'An error occurred while processing the request' });
     }
 }
-
 const companyResults = async (req, res, next) => {
-    const { companyName, studentsList } = req.body;
+    const { studentsList } = req.body;
+    var deviceIDList = [];
 
-    studentsList.forEach(async student => {
-        const updateStatus = await updateInternshipStatus(student, companyName);
+    const updatePromises = studentsList.map(async student => {
+        const updateStatus = await updateInternshipStatus(student, req.params.company);
         if (!updateStatus) {
             console.log(student + " not updated!");
-            return res.status(500).send('Internal Server Error');
+            return res.status(400).json({ message: 'Student Not Updated!' });
         }
     });
 
-    res.status(200).send('Students profile successfully updated!');
+    await Promise.all(updatePromises);
+
+    const deviceIDPromises = studentsList.map(async studentID => {
+        const deviceID = await prisma.student.findFirst({
+            where: {
+                enrollmentNo: studentID
+            },
+            select: {
+                deviceID: true
+            }
+        });
+        return deviceID.deviceID;
+    });
+
+    deviceIDList = await Promise.all(deviceIDPromises);
+
+    SendNotificationToDevice(deviceIDList, req.params.company);
+
+    res.status(200).json({ message: 'Students profile successfully updated!' });
 }
 
 const updateInternshipStatus = async (erno, company) => {
     try {
-        const studentDetails = await prisma.student.findFirst({ where: { enrollmentNo: { equals: erno } } });
-
-        if (studentDetails || studentDetails.isInterned === true) {
-            return false;
-        }
-
-        studentDetails.isInterned = true;
-        studentDetails.companyName = company;
-
         const updatedStudent = await prisma.student.update({
             where: {
                 enrollmentNo: erno
             },
-            data: studentDetails
+            data: {
+                isInterned: true,
+                companyName: company
+            }
         });
 
         if (!updatedStudent) {
